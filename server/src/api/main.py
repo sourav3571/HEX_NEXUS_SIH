@@ -77,7 +77,7 @@ def calculate_kolam_metrics(dots: list[Dot], paths: list[Union[LinePath, CurvePa
 # -----------------------------------------------------------
 
 
-@app.post("/create_kolam")
+@app.post("/api/create_kolam")
 def create_kolam(data: KolamRequest):
     filename = render_kolam(
         [(dot.x, dot.y) for dot in data.dots],
@@ -86,7 +86,7 @@ def create_kolam(data: KolamRequest):
     return {"message": "Kolam created", "file": filename}
 
 
-@app.post("/know-your-kolam")
+@app.post("/api/know-your-kolam")
 async def know_your_kolam(file: UploadFile = File(...)):
     # Save uploaded file
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
@@ -146,7 +146,7 @@ async def know_your_kolam(file: UploadFile = File(...)):
 
 cache = {}
 
-@app.post("/know-and-create-kolam")
+@app.post("/api/know-and-create-kolam")
 async def know_and_create_kolam(file: UploadFile = File(...)):
     # Read file content
     content = await file.read()
@@ -229,7 +229,7 @@ async def know_and_create_kolam(file: UploadFile = File(...)):
 # -----------------------------------------------------------
 # FIXED ROUTE: /api/recreate endpoint using KolamRecreator
 # -----------------------------------------------------------
-@app.post("/recreate")
+@app.post("/api/recreate")
 async def recreate_kolam(file: UploadFile = File(...)):
     """
     Accepts an uploaded image, runs dot detection, and uses the 
@@ -310,7 +310,7 @@ async def recreate_kolam(file: UploadFile = File(...)):
             os.remove(file_path)
 
 
-@app.post("/predict")
+@app.post("/api/predict")
 async def predict_image(file: UploadFile = File(...)):
     file_path = os.path.join(UPLOAD_DIR, f"{uuid.uuid4()}_{file.filename}")
     with open(file_path, "wb") as buffer:
@@ -320,7 +320,7 @@ async def predict_image(file: UploadFile = File(...)):
     os.remove(file_path)
     return {"prediction": result}
 
-@app.post("/llm")
+@app.post("/api/llm")
 async def get_better_image_with_llm(file: UploadFile = File(...)):
     file_bytes = await file.read()
     file_b64 = base64.b64encode(file_bytes).decode("utf-8")
@@ -328,7 +328,7 @@ async def get_better_image_with_llm(file: UploadFile = File(...)):
 
     return {"llmRecreate": result}
 
-@app.post("/stability")
+@app.post("/api/stability")
 async def get_better_image_with_stability(file: UploadFile = File(...)):
     file_bytes = await file.read()
     file_b64 = base64.b64encode(file_bytes).decode("utf-8")
@@ -338,7 +338,7 @@ async def get_better_image_with_stability(file: UploadFile = File(...)):
 
     return {"llmRecreate": f"/img/{result}"}
 
-@app.post("/search")
+@app.post("/api/search")
 async def search_similar(file: UploadFile = File(...)):
     file_path = os.path.join(UPLOAD_DIR, file.filename)
     with open(file_path, "wb") as buffer:

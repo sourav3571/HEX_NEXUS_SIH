@@ -1,4 +1,4 @@
-const BASE_URL = '/api';
+const BASE_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 // Define the API routes in a structured way
 export const API_ROUTES = {
