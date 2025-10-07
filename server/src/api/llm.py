@@ -2,7 +2,7 @@ import json
 import os
 import uuid
 import base64
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 import requests
 import re
@@ -11,20 +11,14 @@ from src.api.schemas import KolamRequest
 
 load_dotenv()
 google_api_key = os.environ.get("GOOGLE_API_KEY")
-
-# --- NECESSARY CHANGE 1 of 3 ---
-# The old `genai.Client` is gone. The new way is to configure the API key globally.
-genai.configure(api_key=google_api_key) # <-- CHANGED
+client = genai.Client(api_key=google_api_key)
 
 IMG_DIR = "img"
 os.makedirs(IMG_DIR, exist_ok=True)
 
 def llm_image(image_b64: str, mime_type: str = "image/png") -> str:
-    # --- NECESSARY CHANGE 2 of 3 ---
-    # We now create a model instance first, then call generate_content.
-    # Note: I've corrected "gemini-2.5-flash" to the valid model name "gemini-1.5-flash".
-    model = genai.GenerativeModel(model_name="gemini-1.5-flash") # <-- CHANGED
-    response = model.generate_content( # <-- CHANGED (removed client.models)
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
         contents=[
             {"text": "Make a better, more aesthetic rangoli (kolam) design from this image."},
             {"inline_data": {"mime_type": mime_type, "data": image_b64}}
@@ -86,13 +80,11 @@ def sd_image(image_b64: str, prompt: str) -> str:
 
     return filename
 
-def llm_prompt(prompt: str, model_name: str = "gemini-1.5-flash") -> str: # <-- Note: Corrected default model name
+def llm_prompt(prompt: str, model_name: str = "gemini-2.5-flash") -> str:
     try:
-        # --- NECESSARY CHANGE 3 of 3 ---
-        # Same change as before: create model instance, then call generate_content.
-        model = genai.GenerativeModel(model_name=model_name) # <-- CHANGED
-        response = model.generate_content(contents=prompt) # <-- CHANGED (removed client.models)
-
+        response = client.models.generate_content(
+            model=model_name, contents=prompt
+        )
         return response.text.strip() if hasattr(response, "text") else str(response)
     except Exception as e:
         print(f"⚠️ LLM Error: {e}")
@@ -104,6 +96,7 @@ def llm_prompt_for_kolam(kolam_json: dict) -> dict:
     Uses Gemini to enhance a Kolam JSON while guaranteeing schema conformity.
     Returns a dict matching KolamRequest schema.
     """
+    print("llm called..")
     prompt = f"""
 You are a geometry-aware AI artist specializing in Kolam (symmetric geometric art).
 
