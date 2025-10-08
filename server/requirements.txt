@@ -84,6 +84,5 @@ uvicorn
 python-dotenv
 google-generativeai
 requests
-Pillow
-#pip install "pydantic[email]"
-#pip install google-generativeai
+pillowemail-validator==2.1.1
+dnspython==2.6.1
