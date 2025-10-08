@@ -69,5 +69,6 @@ uvicorn
 python-dotenv
 google-generativeai
 requests
-pillowemail-validator==2.1.1
+pillow
+email-validator==2.1.1
 dnspython==2.6.1
