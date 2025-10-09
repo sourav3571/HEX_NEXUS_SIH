@@ -4,6 +4,7 @@ const BASE_URL = `${import.meta.env.VITE_API_URL}/api`;
 export const API_ROUTES = {
   AUTH: {
     LOGIN: `${BASE_URL}/auth/login`,
+    
     ME: `${BASE_URL}/auth/me`,
   },
   KOLAM: {
