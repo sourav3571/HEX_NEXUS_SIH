@@ -1,12 +1,4 @@
-# ==============================================================================
-# Python Environment Requirements (Final, Verified for Windows Compatibility)
-# ==============================================================================
-#
-# To install all dependencies from this file, run:
-# pip install -r final-requirements.txt
-#
-# NOTE: The NVIDIA packages require NVIDIA's own Python package index.
---extra-index-url https://pypi.ngc.nvidia.com
+
 
 
 
