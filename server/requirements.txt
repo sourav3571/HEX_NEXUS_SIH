@@ -1,10 +1,7 @@
-
-
-
-
+#requiremnts for the project
 # --- Machine Learning & AI Frameworks ---
-torch==2.8.0
-torchvision==0.23.0
+torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
+torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cpu
 # REMOVED: triton (Primarily Linux-only)
 clip @ git+https://github.com/openai/CLIP.git@dcba3cb2e2827b402d2701e7e1c7d9fed8a20ef1
 faiss-cpu==1.12.0
