@@ -1,11 +1,18 @@
 # --- STAGE 1: Builder ---
-FROM python:3.11-slim-bullseye as builder
+# Use ARGs to make versions easily updatable
+ARG PYTHON_VERSION=3.11
+ARG DEBIAN_VERSION=bullseye
+FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION} as builder
+
+# Set environment variables for consistency and best practices
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+ENV PIP_NO_CACHE_DIR=off
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on
 
 WORKDIR /app
 
-# [IMPORTANT] Install 'git' and 'build-essential' HERE.
-# 'git' is needed to clone the CLIP repository during 'pip install'.
-# 'build-essential' is for compiling any C/C++ extensions if needed.
+# Install build-time dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
@@ -15,21 +22,31 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install python dependencies (will use the corrected requirements.txt)
-RUN pip install --no-cache-dir --upgrade pip
+# Upgrade pip and install dependencies, leveraging layer caching
+RUN pip install --upgrade pip
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 
 # --- STAGE 2: Final Production Image ---
-FROM python:3.11-slim-bullseye
+FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION}
 
-# Create a non-root user for security
-RUN groupadd --system --gid 1001 appgroup && \
-    useradd --system --uid 1001 --gid appgroup appuser
+# Set default port. Can be overridden at runtime.
+ENV PORT=8080
 
-# [IMPORTANT] Install only RUNTIME dependencies.
-# We DO NOT need 'git' or build tools in the final, secure image.
+# Use ARGs for user/group IDs for better security and flexibility
+ARG UID=1001
+ARG GID=1001
+
+# Set the same environment variables as in the builder
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Create a non-root user and group for security
+RUN groupadd --system --gid ${GID} appgroup && \
+    useradd --system --uid ${UID} --gid appgroup --home-dir /home/appuser --create-home appuser
+
+# Install only RUNTIME dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1-mesa-glx \
     libglib2.0-0 \
@@ -40,8 +57,8 @@ WORKDIR /app
 # Copy the pre-built virtual environment from the builder stage
 COPY --from=builder /opt/venv /opt/venv
 
-# Copy application code and set ownership
-COPY --chown=appuser:appgroup . .
+# Copy application code into the container (adjust 'src/' if needed)
+COPY --chown=appuser:appgroup src/ ./src
 
 # Activate the virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
@@ -49,6 +66,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Switch to the non-root user
 USER appuser
 
-EXPOSE 8080
+# Expose the port defined by the environment variable
+EXPOSE ${PORT}
 
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "src.api.main:app", "--bind", "0.0.0.0:8080"]
+# Run the application, binding to the port defined by the environment variable
+# Using "sh -c" allows the shell to expand the $PORT variable.
+CMD ["sh", "-c", "gunicorn -w 4 -k uvicorn.workers.UvicornWorker src.api.main:app --bind 0.0.0.0:$PORT"]
