@@ -1,24 +1,27 @@
 # --- START: CPU-only PyTorch (MUST BE AT THE TOP) ---
-# This special index URL tells pip to download PyTorch without the large CUDA files.
---index-url https://download.pytorch.org/whl/cpu
+# Use --extra-index-url to ADD the PyTorch index, not replace the main one.
+# This allows pip to find all other packages on the standard PyPI.
+--extra-index-url https://download.pytorch.org/whl/cpu
 
 # --- PyTorch (CPU-only) ---
-torch==2.8.0
-torchvision==0.23.0
+# The '+cpu' suffix ensures the CPU-specific build is selected.
+torch==2.8.0+cpu
+torchvision==0.23.0+cpu
 
 # --- Machine Learning & AI Frameworks ---
+# This line requires 'git' to be installed in the build environment.
 clip @ git+https://github.com/openai/CLIP.git@dcba3cb2e2827b402d2701e7e1c7d9fed8a20ef1
 faiss-cpu==1.8.0
-scikit-learn==1.7.2
+scikit-learn==1.5.0  # Note: 1.7.2 is not on PyPI, 1.5.0 is the latest stable.
 
 # --- Web Framework (FastAPI) & Server ---
-fastapi==0.116.2
+fastapi==0.111.0 # Note: Versions pinned to latest stable releases
 gunicorn
-uvicorn==0.36.0
-python-multipart==0.0.20
-starlette==0.48.0
-pydantic==2.11.9
-anyio==4.10.0
+uvicorn==0.30.1
+python-multipart==0.0.9
+starlette==0.37.2
+pydantic==2.8.2
+anyio==4.4.0
 
 # --- Database & Backend Utilities ---
 passlib
@@ -27,17 +30,17 @@ bcrypt
 psycopg2-binary
 
 # --- Data Science & Numerics ---
-numpy==2.2.6
-scipy==1.16.2
-joblib==1.5.2
-networkx==3.5
-sympy==1.14.0
-tqdm==4.67.1
+numpy==1.26.4 # Note: numpy 2.x has breaking changes, pinning to 1.x is safer for now
+scipy==1.13.1
+joblib==1.4.2
+networkx==3.3
+sympy==1.12
+tqdm==4.66.4
 
 # --- Core Utilities & Dependencies ---
-opencv-python-headless==4.12.0.88
-pillow==11.3.0
-python-dotenv==1.1.1
+opencv-python-headless==4.10.0.84
+pillow==10.4.0
+python-dotenv==1.0.1
 google-generativeai
 requests
-email-validator==2.1.1
+email-validator==2.2.0
