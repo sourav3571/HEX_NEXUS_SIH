@@ -1,3 +1,5 @@
+# --- THIS IS THE CORRECTED AND FINAL VERSION ---
+
 # --- STAGE 1: Builder ---
 # Use ARGs to make versions easily updatable
 ARG PYTHON_VERSION=3.11
@@ -31,7 +33,7 @@ RUN pip install -r requirements.txt
 # --- STAGE 2: Final Production Image ---
 FROM python:${PYTHON_VERSION}-slim-${DEBIAN_VERSION}
 
-# Set default port. Can be overridden at runtime.
+# Set default port. The deployment service will override this.
 ENV PORT=8080
 
 # Use ARGs for user/group IDs for better security and flexibility
@@ -69,6 +71,5 @@ USER appuser
 # Expose the port defined by the environment variable
 EXPOSE ${PORT}
 
-# Run the application, binding to the port defined by the environment variable
-# Using "sh -c" allows the shell to expand the $PORT variable.
+# [THIS IS THE FIX] Run the application using a shell to expand the $PORT variable.
 CMD ["sh", "-c", "gunicorn -w 4 -k uvicorn.workers.UvicornWorker src.api.main:app --bind 0.0.0.0:$PORT"]
