@@ -44,3 +44,4 @@ python-dotenv==1.0.1
 google-generativeai
 requests
 email-validator==2.2.0
+svgwrite
