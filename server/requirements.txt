@@ -1,17 +1,12 @@
 # --- START: CPU-only PyTorch (MUST BE AT THE TOP) ---
-# Use --extra-index-url to ADD the PyTorch index, not replace the main one.
-# This allows pip to find all other packages on the standard PyPI.
-
-# --- PyTorch (CPU-only) ---
-# The '+cpu' suffix ensures the CPU-specific build is selected.
-
+--extra-index-url https://download.pytorch.org/whl/cpu
 
 # --- Machine Learning & AI Frameworks ---
 # This line requires 'git' to be installed in the build environment.
 clip @ git+https://github.com/openai/CLIP.git@dcba3cb2e2827b402d2701e7e1c7d9fed8a20ef1
 faiss_cpu==1.12.0
 fastapi==0.118.0
-numpy==2.3.3
+numpy
 opencv_python==4.12.0.88
 passlib==1.7.4
 Pillow==11.3.0
@@ -23,6 +18,7 @@ Requests==2.32.5
 scikit_learn==1.7.2
 SQLAlchemy==2.0.43
 svgwrite==1.4.3
-torch==2.8.0
-torchvision==0.23.0
+torch==2.8.0+cpu
+torchvision==0.23.0+cpu
 uvicorn==0.37.0
+sentence-transformers
